@@ -1,0 +1,158 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-22 16:54:14
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-02-27 11:27:20
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <button type="" @click="addAge">年龄+1</button>
+        <button type="" @click="addSex">为students添加一个性别属性</button>
+        <button type="" @click="editSex">为students修改性别属性</button>
+        <button type="" @click="addFirstFriends">
+          朋友列表首位添加一个新朋友
+        </button>
+        <button type="" @click="editFirstFriends">
+          修改第一个朋友的名字为brown
+        </button>
+        <button type="" @click="addHobby">添加一个爱好</button>
+        <button type="" @click="editFirstHobby">修改第一个爱好</button>
+        <button type="" @click="deleteAge">删除年龄属性</button>
+      </div>
+      <h1>学生信息</h1>
+      <h2>姓名:{{students.name}}</h2>
+      <h2>年龄:{{students.age}}</h2>
+      <h2 v-if="students.sex">性别:{{students.sex}}</h2>
+      <h2>爱好:</h2>
+      <ul>
+        <li v-for="(item,index) in students.hobby" :key="index">{{item}}</li>
+      </ul>
+      <h2>朋友们:</h2>
+      <ul>
+        <li v-for="(item,index) in students.friends" :key="index">
+          姓名：{{item.name}}--年龄：{{item.age}}
+        </li>
+      </ul>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const vm = new Vue({
+        data() {
+          return {
+            students: {
+              name: "tom",
+              age: 20,
+              hobby: ["足球", "篮球", "乒乓球"],
+              friends: [
+                { name: "lucy", age: 18 },
+                { name: "kate", age: 21 },
+              ],
+            },
+          };
+        },
+        methods: {
+          //修改vue实例创建时就已经初始化的数据的某个属性
+          addAge() {
+            this.students.age++;
+          },
+          addSex() {
+            //vue 对于对象的监测
+            //常规思路---->可见打印数据正常，但是并不奏效。这是因为在创建vue实例时，vue内部只
+            //会对初始化时就定义的数据和属性进行响应式的操作（为每一个属性添加getter和setter)
+            //后续当初始化时就已经定义的数据发生变化的时候，通过setter内部的操作重新解析模板，更
+            //新页面数据;但是如果操作初始化时并不存在的数据和属性时（比如新增一个属性），vue就识别
+            //不到这些数据和属性的变化（这些新增的属性和数据没有对应的getter和setter），页面也就
+            //不会被更新
+            // this.students.sex = "男";
+            // console.log(this.students.sex, "sex");
+            //如果确实有对于数据初始化时并不存在的属性进行操作的需求 可以使用 Vue.set 或者 vm.$set
+            //的方法进行操作，这样操作过后，新增的属性也有了对应的getter和setter，当其发生变化时，能
+            //够通过setter被识别到，模板也就可以重新进行解析，更新页面。
+            //Vue.set(this.students, "sex", "男");
+            //或者
+            //vm.$set(this.students, "sex", "男");
+            //或者
+            this.$set(this.students, "sex", "男");
+          },
+          editSex() {
+            //必须先添加了sex属性，才可以这样去修改
+            this.students.sex = "女";
+          },
+          addFirstFriends() {
+            //vue 对于数组的监测   vue中如果对于数组进行操作后期望vue能够识别到数据的变化进而更新页面的
+            //的话，需要使用几个数组固定的方法（push,unshift,pop,shift,splice,sort,reverse）,或者使用
+            //Vue.set 或者 vm.$set 或者 this.$set,  或者对原来初始化时的数组进行覆盖式重写。
+            this.students.friends.unshift({
+              name: "lily",
+              age: 23,
+            });
+            //此处 新增一个元素 无法使用 Vue.set 或者 vm.$set 或者 this.$set; 修改时可以
+          },
+          editFirstFriends() {
+            this.students.friends[0].name = "brown";
+          },
+          addHobby() {
+            this.students.hobby.push("羽毛球");
+          },
+          editFirstHobby() {
+            //this.students.hobby[0] = "台球"; //无效案例
+            // this.students.hobby.splice(0, 1, "台球");
+            //或者
+            Vue.set(this.students.hobby, 0, "台球");
+            //或者
+            // vm.$set(this.students.hobby, 0, "台球") / this.$set(this.students.hobby, 0, "台球")
+          },
+          deleteAge() {
+            // delete this.students.age; 不生效
+            this.$delete(this.students, "age"); // 删除 属性 使用 this.$delete(target,attribute)
+            //或者
+            //vm.$delete(this.students, "age");
+            //或者
+            //Vue.delete(this.students, "age");
+          },
+        },
+      });
+      vm.$mount("#app");
+      console.log(vm, "app");
+      /*
+        vue中的数据监测
+
+        1. vue会监测data中定义的所有数据。
+
+        2. vue如何监测对象数据？
+            a.  vue通过setter对vue实例创建时就初始化的数据进行监测，
+            b.  对于数据初始化后人为的添加的其他数据默认不做响应式处理
+            c.  如果后续手工添加的数据也需要做响应化处理需要使用
+                  Vue.set(target, propertyName/index, value) 或
+                  vm.$set(target, propertyName/index, value) 或
+                  this.$set(target, propertyName/index, value)
+                  propertyName 属性名   index 索引值
+
+        3. vue如何监测数组的数据变化？
+              vue通过对数组更新数据的方法的再包装，实现了对于数组数据的监测，这个过程中的本质可以概括为两件事
+              a. 调用数组本身的方法更新数组
+              b. 重新解析模板，更新页面
+
+            vue中如果对于数组进行操作后期望vue能够识别到数据的变化进而更新页面的的话，需要使用几个数组固定的方
+            法（push,unshift,pop,shift,splice,sort,reverse）,或者使用Vue.set 或者 vm.$set 或者
+            this.$set,  或者对原来初始化时的数组进行覆盖式重写。
+
+        4. 值得注意的是 Vue.set 或者 vm.$set 不能够给vm或者vm根数据对象添加属性(只能给data里的某个属性追加属性，不能给data追加属性(也就是说target不能是vm和vm.data）)。
+           会报错提醒。
+
+
+
+
+      */
+    </script>
+  </body>
+</html>

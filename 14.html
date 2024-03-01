@@ -1,0 +1,112 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-02-23 12:09:37
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-02-23 14:14:22
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    /*模拟vue2.x 中 响应式数据实现
+      在浏览器控制台进行演示读取属性 修改属性 删除属性 添加属性
+
+      通过操作发现读取和修改属性 是可以捕捉到的，但是 添加属性 和 删除属性 是捕捉不到的，操作不生效,person 不发生变化。
+      因此，vue2.x 基于实现响应数据的原理就注定了 vue2.x 中 响应式数据存在的问题，而且如果一个对象属性很多，要一遍遍的
+      通过调用 defineProperty 来 实现代理，也不是一个很理想化方式。
+    */
+    let person = {
+      name: "tom",
+      age: 20,
+    };
+    let p = {};
+    // 用 代理对象 p 实现对 源对象 person name属性的 对读取操作
+    Object.defineProperty(p, "name", {
+      //当读取name 时 会调用get
+      get() {
+        console.log("有人读取了name属性");
+        return person.name;
+      },
+      set(value) {
+        console.log("有人修改了name属性");
+        person.name = value;
+      },
+    });
+
+    // 用 代理对象 p 实现对 源对象 person age 属性的 对读取操作
+    Object.defineProperty(p, "age", {
+      //当读取age 时 会调用get
+      get() {
+        console.log("有人读取了age属性");
+        return person.age;
+      },
+      set(value) {
+        console.log("有人修改了age属性");
+        person.age = value;
+      },
+    });
+
+    /*
+      vue3.x 中响应式数据的实现
+      通过window的Proxy（构造函数） 来实现对源数据的代理
+
+      Proxy中的 的 get,set 和 deleteProperty 可以捕捉到 对象属性的 增删改查，并且通过这些方法的参数可以
+      更简洁的实现对所有属性的代理。
+    */
+    let p1 = new Proxy(person, {
+      //读取属性时 就会调用get
+      get(target, propName) {
+        console.log(`有人读取p1身上的${propName}属性`);
+        return target[propName];
+      },
+      //修改/增加 属性时 就会调用set
+      set(target, propName, value) {
+        console.log(
+          `有人修改p1身上的${propName}属性,更新页面的过程就可以写在这里了`
+        );
+        target[propName] = value;
+      },
+      //删除属性时 就会调用 deleteProperty
+      deleteProperty(target, propName) {
+        console.log(
+          `有人删除p1身上的${propName}属性,更新页面的过程就可以写在这里了`
+        );
+        return delete target[propName];
+      },
+    });
+
+    /*
+        尽管以上 已经模拟了 vue3.x 的通过代理对象 对源对象进行操作，实现响应式数据，但是在真正的实现上，
+        vue3.x 与我们模拟的是有些差别的， 它使用了Reflect来实现数据的响应式。
+
+    */
+
+    let p2 = new Proxy(person, {
+      //读取属性时 就会调用get
+      get(target, propName) {
+        console.log(`有人读取p2身上的${propName}属性`);
+        return Reflect.get(target, propName);
+      },
+      //修改/增加 属性时 就会调用set
+      set(target, propName, value) {
+        console.log(
+          `有人修改p2身上的${propName}属性,更新页面的过程就可以写在这里了`
+        );
+        return Reflect.set(target, propName, value);
+      },
+      //删除属性时 就会调用 deleteProperty
+      deleteProperty(target, propName) {
+        console.log(
+          `有人删除p2身上的${propName}属性,更新页面的过程就可以写在这里了`
+        );
+        return Reflect.deleteProperty(target, propName);
+      },
+    });
+  </script>
+</html>

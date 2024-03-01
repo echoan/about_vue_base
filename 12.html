@@ -1,0 +1,197 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-24 21:23:21
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-02-28 11:51:55
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      {{message}}
+      <!-- school组件的使用 -->
+      <h1>school组件的使用</h1>
+      <div>
+        <school></school>
+        <my-school></my-school>
+        <Myschool></Myschool>
+      </div>
+      <h1>简写组件Hello的使用</h1>
+      <div>
+        <Hello></Hello>
+      </div>
+      <hr></hr>
+      <!-- student组件的使用 -->
+      <h1>student组件的使用</h1>
+      <div>
+        <Mystudent></Mystudent>
+      </div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      //创建School组件 仅在app vue实例中使用。
+      const School = Vue.extend({
+        name:'chinaSchool',
+        data() {
+          return {
+            schoolName: "中国科学院大学",
+            schoolAddress: "北京",
+          };
+        },
+        template: `
+          <div>
+            <h2>学校名字:{{this.schoolName}}</h2>
+            <h2>学校地址:{{this.schoolAddress}}</h2>
+          </div>
+        `,
+      });
+      //创建Student组件 并注册为全局组件
+      const Student = Vue.extend({
+        data() {
+          return {
+            name: "lucky",
+            age: 20,
+          };
+        },
+        template: `
+          <div>
+            <h2>学生名字:{{this.name}}</h2>
+            <h2>学生年龄:{{this.age}}</h2>
+          </div>
+        `,
+      });
+      Vue.component('Mystudent',Student)
+
+      //使用简写方式 创建一个 Hello 组件 并嵌套使用 组件 Student
+      const Hello = {
+          components:{
+            Student
+          },
+          template:`
+            <div>
+                <h2>Hello</h2>
+                <Student></Student>
+            </div>
+
+          `
+      }
+      const app = new Vue({
+        el: "#app",
+        data() {
+          return {
+            message: "vue组件相关",
+          };
+        },
+        components: {
+          school:School,
+          'my-school': School,
+          Myschool:School,
+          hello:Hello
+        },
+      });
+      console.log(app, "app");
+
+      /*
+        组件化开发的理解
+        1.什么叫组件？  实现某个特定功能的代码集合（html,css,js）可以称为一个组件。
+        2.组件化开发的优点？  提高代码复用性，使项目代码维护更便捷。
+        3.组件可以分为非单文件组件和单文件组件。
+          非单文件组件:一个文件中包含多个组件。
+          单文件组件:一个文件只包含一个组件（一个文件就是一个组件）。
+
+        4. Vue中使用组件的过程:组件创建;组件注册（将组件注册成为局部组件或者全局组件);组件在模板中的使用
+
+           组件创建:
+           vue2.x 中，创建一个被实例使用和管理的组件 使用 Vue.extend({}),来创建。
+           注意:
+              1.创建组件时options内部，不能配置 el属性。
+              2.组件中定义data时，只能将data 需要定义为一个函数,在函数中返回的对象中定义组件需要的各种数据。
+                (这与在实例中定义data时可以是函数也可以直接是一个对象是不同的。)
+
+              为什么不能配置el属性？
+                定义的组件使用时都需要一个实例来管理，最终组件服务于哪一个模板容器，由定义实例时配置的el属性来控制。
+
+              为什么data只能定义为一个函数？
+                为了避免组件复用时，复用组件的数据存在引用关系。
+                (之所以在组件中将data定义为一个函数（Vue之所以会这样设计），是为了，当创建的组件在实例中多次使用
+                的时候，要保证每次使用的该组件都能够有一份属于当前组件的独立的不受影响的数据。只有这样，定义的一个
+                组件多次使用的时候，组件间的数据才不会互相影响，否则，一个组件中某个属性的变化势必会导致页面中所有使
+                用该组件的地方都会受到影响。)
+
+          组件注册:
+             组件使用前要进行注册，注册组件使用 components:{key:value}
+             key:组件的名称（可以和定义的组件名一样);
+             value:组件定义时的名字
+             局部组件的注册直接在要使用组件的实例中通过配置components属性就可以,哪个实例中使用就在那个实例中去进行注册。
+             全局组件的注册 通过Vue.component(注意不是Vue.components)来注册，注册一次，全局使用，不需要在实例中再配置 components 属性。
+
+             组件在注册的时候，命名规范
+                1. 如果组件名是一个单词，可以写成 shcool/School
+                2. 如果组件名是多个单词，可以写成 my-school/MySchool(驼峰命名需要Vue脚手架支持，当前不支持)
+                3. 组件名应尽可能避免与关键字重名
+                4. 组件使用进行注册时，定义的名称是组件使用时真正的名字，当然，如果在定义组件时，添加了name 属性，那么即使
+            在进行注册时又定义了其他名称，在页面上组件的名字也是和定义的name是一致的。
+
+          组件使用:
+            在模板中要使用组件的地方，以标签的形式使用即可。
+            组件使用时 可以写成 <school></school> 这种闭合的标签，也可以写成 <school/>这种形式（需要在Vue脚手架支持的情况下，不然有时不会被识别渲染）
+
+        5. 组件创建的简写方式 可以省略掉 Vue.extend
+
+        6. 组件的嵌套使用:将被嵌套的组件在使用的该组件的组件中注册即可。
+
+        7. 组件的本质
+             通过Vue.extend或用简写方式定义组件时，本质是生成一个构造函数VueComponent，每次定义组件就获得一个全新的VueComponent
+             当我们以标签形式使用这些组件时，Vue解析模板阶段执行 new VueComponen() 来生成组件的实例对象。
+
+        8. 组件和vue实例中this关键字的指向
+           组件中 data,methods,watch,computed等属性中的关键字指向当前组件的实例对象。
+           Vue实例中 这些属性中的关键字this，指向当前创建的Vue实实例对象。
+
+           通过new VueComponent创建的实例对象，称为组件的实例对象，简称VC
+           通过new Vue创建的实例对象 称为Vue的实例对象，简称VM
+           组件可以看作可复用的Vue实例，创建组件和创建Vue实例时接收的options基本一致，除了组件创建时不能配置 el这种根实例才有的属性
+           和组件中 data 属性必须配置为 函数，其他内容，实例上有的 组件上均有。
+
+        9. 一个非常重要的内置关系
+
+          VM 由 Vue 构造函数创建 因此 VM._proto_ = Vue.prototype(Vue的原型对象)
+          VC 由 VueComponent构造函数创建  因此 VC._proto_ = VueComponent.prototype（VueComponent的原型对象）
+          在Vue中，做了这样一个操作，将VueComponent的原型对象的_proto_又指向了Vue的原型对象   VueComponent.prototype._proto_ = Vue.prototype
+          因此，Vue原型上属性和方法VM和VC都可以访问和使用。
+
+        10. 单文件组件
+            一个文件只包含一个组件，一个文件便是一个组件。使用vue在实际的开发工作中，通常会创建 .vue 后缀的文件，
+            这样的一个文件便是一个vue的组件。
+            一个vue组件主要由3部分组成
+            template:模板（dom结构
+            script:  js内容（组件的业务逻辑和交互部分）
+            style:   css样式表
+
+          需要知道的是，在当前html中通过引入 vue.js的方式，是无法解析编译 .vue后缀的文件的，
+          真正的开发过程中，可以通过手动配置webpack，或者使用Vue官方的标准化开发平台vue-cli（Vue开发的脚手架工具）
+          来解决这些问题。
+
+          另外不要混淆的是，Vue的版本是Vue的版本，Vue-Cli的版本是Vue-Cli的版本，两者并不一样。
+          高版本的脚手架 适配 低版本的Vue,但是高版本的Vue 不一定适配低版本的脚手架，因此实际的开发工作中
+          一般 使用 高版本的脚手架工具，然后选择Vue的版本（2.x 或者 3.0）
+
+
+
+
+
+
+
+
+
+
+      */
+    </script>
+  </body>
+</html>

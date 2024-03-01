@@ -1,0 +1,116 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-23 16:58:33
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-23 18:14:36
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <h2>当前n的值是:{{n}}</h2>
+      </div>
+      <div>
+        <h2>使用自定义指令放大10倍后n的值：<span v-big="n"></span></h2>
+      </div>
+      <div>
+        <h2>使用自定义指令放大100倍后n的值：<span v-big-hundred="n"></span></h2>
+      </div>
+      <div>
+        <h2>使用自定义指令fbind：<input type="text" v-fbind:value="n" /></h2>
+      </div>
+      <div>
+        <button type="" @click="addN">n+1</button>
+      </div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const app = new Vue({
+        data() {
+          return {
+            n: 1,
+          };
+        },
+        //实例中添加自定义指令（函数式）
+        directives: {
+          //   big(element, binding) {
+          //     //console.log(element, binding);
+          //     element.innerText = binding.value * 10;
+          //   },
+          //先用函数式 来实现 fbind。发现 element.focus()在初始化时并没有被激活 是因为使用函数式时在建立绑定关系时
+          //就执行 input focus，但是此时 input还并没有插入到当前页面，也就无从谈起 input 的 focus了，但是当模板
+          //重新编译时（n变化时），页面中已经有了input,此时，input 的focus 生效，因此此时最好使用 对象式来实现该自定义指令。
+          //   fbind(element, binding) {
+          //     element.value = binding.value;
+          //     element.focus(); //
+          //   },
+          //添加自定义指令 v-fbind(对象式) 内部有三个钩子函数 分别在对应的时机触发 每个钩子函数同样接收2个参数
+          fbind: {
+            //建立绑定关系时 触发
+            bind(element, binding) {
+              console.log(element, binding, this, "======");
+              element.value = binding.value;
+            },
+            //添加自定义指令的元素插入到页面时 触发
+            inserted(element, binding) {
+              //让当前element元素（input） 聚焦 如果写在 bind钩子函数不会被激活，因为bind时仅仅只是建立了绑定关系，当前模板中并没有
+              //input元素，也就无法实现 focus的操作。
+              element.focus();
+            },
+            //指令所在模板被重新解析时 触发
+            update(element, binding) {
+              element.value = binding.value;
+              element.focus();
+            },
+          },
+          "big-hundred"(element, binding) {
+            //console.log(element, binding);
+            element.innerText = binding.value * 100;
+          },
+        },
+        methods: {
+          addN() {
+            this.n++;
+          },
+        },
+      });
+      //将v-big 定义为全局指令
+      Vue.directive("big", function (element, binding) {
+        console.log(this, "this===============");
+        element.innerText = binding.value * 10;
+      });
+
+      app.$mount("#app");
+      console.log(app, "app");
+
+      /*
+        自定义指令（函数式和对象式）
+
+        1. 自定义一个指令v-big 使n的值放大10倍进行显示
+              该自定义指令使用了函数式来声明，函数接收2个参数，element(当前绑定该指令的dom元素)，
+              binding（绑定对象）
+              v-big何时何时调用：a.指令与元素成功绑定时（初始化时）就会调用 b.当前指令添加的dom节点所在模板重新解析时会再次调用。
+        2. 自定义一个指令v-fbind 当按钮点击时 输入框显示当前的n的值，并且input框被激活。
+              该自定义指令使用了对象式来声明，对象式声明包含3个钩子函数
+              bind（自定义指令和元素建立绑定关系时）
+              inserted(建立绑定关系的dom元素插入到页面中时)
+              update(指令添加的节点所在的模板重新解析时)
+
+              对象式比函数式的优势在于，可以在对应的钩子函数中处理更多的细节问题（如本例中让input focus的操作）。
+        3. 我们在new Vue({}) 定义的指令，是局部指令，无法在全局使用 要定义全局指令，可以直接通过Vue.directive 来实现
+        4. 注意 无论是局部自定义指令还是全局的自定义指令 内部this指向的是window.
+        5. 指令自定义时 不需要加v-,在使用时需要加v,此外，自定义的指令如果是多单词组合 那么不需要驼峰命名，使用短线-连接就可以。
+
+
+
+      */
+    </script>
+  </body>
+</html>

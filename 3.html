@@ -1,0 +1,102 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-18 15:34:30
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-18 15:59:17
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>{{message}}</div>
+
+      <div style="margin-top: 20px">
+        <button @click="clickEvent1">点击1</button>
+        <button @click="clickEvent2(5,$event)">点击2</button>
+        <button @click="(e)=>clickEvent2(50,e)">点击2</button>
+        <button @click="clickEvent1(),clickEvent2(50,$event)">
+          绑定多个事件
+        </button>
+      </div>
+
+      <div @click="outerClick">
+        外层元素
+        <div @click="innerClick">内层元素</div>
+      </div>
+
+      <div @click="outerClick" style="margin-top: 20px">
+        外层元素
+        <div @click.stop="innerClick">内层元素</div>
+      </div>
+
+      <div @click.self="outerClick" style="margin-top: 20px">
+        外层元素
+        <div @click="innerClick">内层元素</div>
+      </div>
+
+      <div @click.capture="outerClick" style="margin-top: 20px">
+        外层元素
+        <div @click="innerClick">内层元素</div>
+      </div>
+
+      <div>
+        <a href="https://www.baidu.com/" @click.prevent="clickEvent1"
+          >点击去百度</a
+        >
+      </div>
+
+      <div style="margin-top: 20px">
+        <input @keydown.enter="keyEvent" />
+        <br />
+        <button @click.right="mouseEvent">鼠标按键修饰符</button>
+      </div>
+    </div>
+    <!-- <script src="./vue/vue.min.js"></script> -->
+    <script src="./vue/vue.js"></script>
+    <script>
+      const app = new Vue({
+        data() {
+          return {
+            message: "hello world",
+          };
+        },
+        methods: {
+          clickEvent1() {
+            console.log("绑定事件1");
+          },
+          clickEvent2(num, e) {
+            console.log(num, e, "点击事件2");
+          },
+          outerClick() {
+            console.log("外层元素事件触发");
+          },
+          innerClick() {
+            console.log("内层元素事件触发");
+          },
+          keyEvent() {
+            console.log("按键事件修饰符");
+          },
+          mouseEvent() {
+            console.log("鼠标按键修饰符");
+          },
+        },
+      });
+      app.$mount("#app");
+      /*
+        事件和事件修饰符
+        1.绑定事件时的传参,以及事件对象的传递
+        2.一个dom绑定多个事件的方式
+        3.事件修饰符 prevent,stop,self,once(事件只会执行一次),capture(捕获模式，由外向内，冒泡模式 由内向外,默认是冒泡模式),
+        passive(事件的默认行为会立即执行，不必等待回调事件执行完毕，较少使用，使用场景常与页面性能优化相关)
+        4.键盘和鼠标的事件修饰符    常用的键盘事件修饰符  enter,tab,esc,delete 等 如enter,当键盘enter键按下的时候触发
+        鼠标事件修饰符 left,right,middle  默认是left,当点击时，点击鼠标左键触发对应事件
+     */
+    </script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-18 14:04:15
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-18 15:26:24
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">{{message}}</div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const vm = new Vue({
+        data() {
+          return {
+            message: "hello world",
+          };
+        },
+      });
+      vm.$mount("#app");
+      console.log(vm, vm.message, "=========");
+
+      /*vue中的数据代理*/
+      /*
+        1.定义在vue实例中的数据 是如何显示到模板中的？
+
+          定义的数据，实际是通过vue内部的一些操作 将其映射到了视图模型vm 上,vm作为桥梁的作用实现了数据层（model）和 视图层（view）的联动。M(model)V(view)VM(vm)
+
+        2.如何将定义的数据映射到了vm上？
+
+          数据代理
+
+        3.理解数据代理。
+
+          通过defineProperty来理解 数据代理(通过一个对象代理对另外一个对象的属性进行操作)
+
+      */
+
+      /*defineProperty的使用*/
+      let number = 20;
+      let person = {
+        name: "tom",
+        sex: "男",
+      };
+
+      Object.defineProperty(person, "age", {
+        value: number,
+        enumerable: true, // enumerable 属性 值为布尔值 默认 false 用来控制通过defineProperty添加的属性是否可以枚举
+        writable: true, // writable 控制添加的属性是否可以被修改 默认false
+        configurable: true, //configurable 控制属性是否可以被删除 默认false
+      });
+      console.log(person.age, "age");
+      console.log(person, "person");
+      Object.keys(person).map((key) => {
+        console.log(key, "key");
+      });
+
+      person.age = 100;
+      console.log(person.age, "age");
+
+      delete person.age;
+      console.log(person.age, "age");
+
+      //defineProperty 的get 和 set 方法
+      Object.defineProperty(person, "money", {
+        //当person的money的属性被读取时 get方法(getter)就会被调用 返回的值就是person属性money的值
+        get() {
+          console.log("person的money的属性被读取", number);
+          return number;
+        },
+        //当person的money的属性被修改时 set方法(setter)就会被调用 收到修改的具体的值
+        set(value) {
+          console.log("person的money的属性被修改", value);
+          number = value;
+        },
+      });
+      /*
+        通过以上的操作，我们可以在控制台看到，当我们修改number时，获取到的person的money值也会发生变化，其实是我们
+        将number的值映射到了对象person的money属性上,同样，当我们修改person的money的属性值时，可以发现number的
+        值也发生了变化。
+      */
+
+      /*
+       综上，我们可以知道
+        1.vue中的数据代理---通过vm对象代理对data对象属性的操作（读写）。
+        2.vue中通过数据代理可以更加方便的对data进行操作。
+        3.vue中数据代理的基本原理:
+           a. 通过defineProperty 将定义在data的属性都添加到vm上
+           b. 为每一个添加到vm上的属性定义getter 和 setter
+           c. 通过getter 和 setter 对data属性进行操作（读写）
+
+      */
+    </script>
+  </body>
+</html>

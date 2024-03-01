@@ -1,0 +1,108 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-19 17:28:56
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-20 10:56:00
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>class的绑定</div>
+      <div class="red">直接写class</div>
+      <div :class="class1">绑定字符串</div>
+      <div :class="{'red':true,'backGround':true}">绑定对象</div>
+      <div :class="classObj">绑定对象变形</div>
+      <div :class="['red','backGround']">绑定数组</div>
+      <div :class="classArr">绑定数组变形</div>
+      <div :class="['red',{'backGround':true}]">数组和对象的混用</div>
+      <hr />
+      <div>style的绑定</div>
+      <div style="color: red">直接写内联样式</div>
+      <div :style="styleStr">绑定字符串</div>
+      <div :style="styleObj">绑定对象</div>
+      <div :style="styleArr">绑定数组</div>
+      <hr />
+      <div>条件渲染</div>
+      <div>
+        <div v-if="show">{{message}}</div>
+
+        <button @click="changeShow">change show</button>
+
+        <div v-show="show_">{{message}}</div>
+
+        <button @click="changeShow_">change show_</button>
+      </div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const app = new Vue({
+        data() {
+          return {
+            class1: "red",
+            classObj: { red: true, backGround: true },
+            classArr: ["red", "backGround"],
+            styleStr: "color:red",
+            styleObj: {
+              color: "red",
+            },
+            styleArr: [{ color: "red" }, { backgroundColor: "orange" }],
+            message: "hello world",
+            show: true,
+            show_: true,
+          };
+        },
+        methods: {
+          changeShow() {
+            this.show = !this.show;
+          },
+          changeShow_() {
+            this.show_ = !this.show_;
+          },
+        },
+      });
+      app.$mount("#app");
+      console.log(app, "app");
+      /*
+        class类名和行内样式style的绑定
+
+       1. class 类名绑定
+          a. 字符串形式
+          b. 对象形式
+          c. 数组形式
+
+       2. style 行内样式绑定
+          a. 字符串形式（dom上直接写内联样式）
+          b. 对象形式
+          c. 数组形式
+      */
+
+      /*
+       条件渲染 v-show 和 v-if
+       1.v-if 控制元素是否创建，如果值为true 那么dom创建并渲染，如果值为false 删除相关dom节点
+       2.v-show 是通过控制样式的显示和隐藏来控制dom的是否显示
+       如果是一个dom元素需要频繁的显示和隐藏，那么最好使用v-show 来尽量降低性能的开销。因为频繁的渲染和销毁
+       可能会使页面看起来卡顿。
+
+
+      */
+    </script>
+    <style>
+      .red {
+        color: red;
+      }
+      .green {
+        color: green;
+      }
+      .backGround {
+        background-color: orange;
+      }
+    </style>
+  </body>
+</html>

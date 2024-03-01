@@ -1,0 +1,94 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-23 09:16:34
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-02-27 11:39:43
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+        <div>
+           <p>{{textContent}}</p>
+           <div>
+                <input v-model="textContent"/>
+           </div>
+           <div>
+               <textarea v-model="textContent"></textarea>
+           </div>
+
+           <div>
+                {{inputCheck}}<input type="checkbox" v-model="inputCheck"></input>
+           </div>
+
+           <div>
+                <div>已选:{{checkList}}</div>
+                <input type="checkbox" v-model="checkList" value="hello">hello</input>
+                <input type="checkbox" v-model="checkList" value="world">world</input>
+           </div>
+
+          <div>
+                <div>已选:{{checkRadio}}</div>
+                <input type="radio" v-model="checkRadio" value="hello">hello</input>
+                <input type="radio" v-model="checkRadio" value="world">world</input>
+           </div>
+
+            <div>
+                {{inputName}}
+                <input type="checkbox" v-model="inputName" true-value="已经选择" false-value="还未选择">apple</input>
+            </div>
+
+            <div>
+                {{inputName_}}
+                <input v-model.trim="inputName_" >trim修饰符</input>
+            </div>
+
+            <div>
+                {{inputName_1}}
+                <input v-model.lazy="inputName_1" >lazy修饰符</input>
+            </div>
+
+
+            <div>
+                {{typeof(inputName_2)}}
+                <input v-model.number="inputName_2" type="number">number 修饰符</input>
+            </div>
+        </div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const app = new Vue({
+        data() {
+          return {
+            textContent: "hello",
+            inputCheck: false,
+            checkList: [],
+            checkRadio: "hello",
+            inputName: "",
+            inputName_: "test",
+            inputName_1: "",
+            inputName_2: "",
+          };
+        },
+      });
+      app.$mount("#app");
+      console.log(app, "app");
+
+      /*
+        vue中的表单元素的数据的双向绑定
+        1.input 和 textarea
+        2.checkbox 和 radio
+        3.v-model 中常用的修饰符 true-value(选中时的值) fasle-value(未选中时的值) trim(去除两边的空格),
+        lazy(input失去焦点时 数据双向绑定), number(将输入数字转为number) 等等
+        4.vue中的过滤器（不常用，其使用可参考该链接 https://www.bilibili.com/video/BV1Zy4y1K7SH?p=39&spm_id_from=pageDriver&vd_source=587cebb46d58b20639ae48c1468554d5）
+
+      */
+    </script>
+  </body>
+</html>

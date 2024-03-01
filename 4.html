@@ -1,0 +1,151 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-19 15:53:18
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-02-26 22:54:42
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>姓<input type="text" name="" v-model="firstName" /></div>
+      <div>名<input type="text" name="" v-model="lastName" /></div>
+      <div>计算属性</div>
+      <div>全名:{{fullName}}---计算属性实现的</div>
+      <div>全名:{{fullName}}---计算属性实现的</div>
+      <div>全名:{{fullName}}---计算属性实现的</div>
+      <div>全名-{{getFullName()}}---方法实现的</div>
+      <div>全名-{{getFullName()}}---方法实现的</div>
+      <div>全名-{{getFullName()}}---方法实现的</div>
+      <div>全名:{{fullName_}}---简写计算属性实现的</div>
+      <hr />
+      <div>监听属性</div>
+      <div>监听后的全名{{watchFullName}}</div>
+      <div>监听后的全名:{{watchFullName}}---简写监听属性实现的</div>
+      <div>监听对象 姓名:{{watchObj.name}}----年龄:{{watchObj.age}}</div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const vm = new Vue({
+        data() {
+          return {
+            firstName: "李",
+            lastName: "四",
+            watchFullName: "",
+            watchObj: {
+              name: "tom",
+              age: 10,
+            },
+          };
+        },
+        computed: {
+          fullName: {
+            //属性一旦被读取 get 被调用
+            get() {
+              console.log("计算属性的get被调用");
+              return this.firstName + "-" + this.lastName;
+            },
+            //属性一旦被修改 set 被调用(比如直接在控制台通过vm来修改fullName)
+            set(val) {
+              console.log(val, "val");
+              let currentName = val;
+              this.firstName = currentName.split("-")[0];
+              this.lastName = currentName.split("-")[1];
+            },
+          },
+          //简写形式
+          fullName_() {
+            console.log("计算属性的get被调用");
+            return this.firstName + "-" + this.lastName;
+          },
+        },
+        watch: {
+          fullName_: {
+            immediate: true,
+            handler(newVal, oldVal) {
+              console.log(newVal, oldVal, "监听到了全名的变化");
+              this.watchFullName = this.fullName_;
+            },
+          },
+          //简写形式
+          //   fullName_(newVal, oldVal) {
+          //     this.watchFullName = this.fullName_;
+          //   },
+
+          //监听对象某个属性的变化
+          "watchObj.name": {
+            handler(newVal, oldVal) {
+              console.log("watchObj.name发生变化");
+            },
+          },
+
+          //监听对象发生的变化
+          watchObj: {
+            deep: true,
+            handler(newVal, oldVal) {
+              console.log("对象发生了变化====");
+            },
+          },
+        },
+        methods: {
+          getFullName() {
+            console.log("调用了方法");
+            return this.firstName + "-" + this.lastName;
+          },
+        },
+      });
+      vm.$mount("#app");
+
+      //实例创建后 再去添加监听
+      //   vm.$watch("fullName_", {
+      //     handler(newVal, oldVal) {
+      //       console.log("在实例创建之后来监听属性变化");
+      //     },
+      //   });
+
+      //实例创建后 再去添加监听 的简写形式
+      vm.$watch("fullName_", function (newVal, oldVal) {
+        console.log("在实例创建之后来监听属性变化");
+      });
+      console.log(vm, "vm");
+
+      /*
+         计算属性 computed 其属性值通过已有的属性计算而来。
+
+         1.计算属性何时会被调用？
+           a.初始化时如果有相关的计算属性则会被调用
+           b.计算属性依赖的属性发生变化时，会重新调用,如果计算属性依赖的属性不发生变化，那么就不会被调用。
+
+         2.计算属性具有缓存特性
+           页面上有多处使用同一个计算属性，计算属性只会调用一次，这一点和通过method的实现不一样（method会多次调用），
+           另外就是，通过method来实现的话，页面上无关的属性发生变化，method也会重新调用，这样会降低页面的性能。
+
+         3.计算属性的实现原理 通过defineProperty的getter和setter来实现。
+         4.定义的计算属性最终也会出现在vm上
+         5.计算属性一般是来读取的，如果需要修改那么需要在计算属性定义时添加set方法。
+         6.计算属性如果只需要读取，那么可以进行简写，省略掉get 关键字
+       */
+      /*
+        监听属性 watch 对某个属性进行监听 属性发生变化 触发监听方法
+
+       1.监听属性特点
+         a.默认初始化时不执行，初始化完成后监听的属性发生变化后才会触发，但是可以通过添加配置项 immediate:true 来让监听属性
+         初始化时就执行。
+         b.watch 可以监听data中的属性，也可以监听计算属性，如上就是监听的计算属性
+         c.watch 默认不监听对象内部值的改变，如果需要监听对象内部属性，通过增加配置项 deep:true来实现,监听对象某个属性变化可以直接监听。
+         d.监听属性 只有没有添加其他配置项的情况下 才可以进行简写，省掉handler
+
+        2.监听属性也可以不写在vue实例时，而是在实例创建完成后再添加。
+        3. 监听属性和计算属性的对比
+           a. 计算属性能够实现的功能，监听属性同样可以实现,这种情况下可以优先选用计算属性。
+           b. 计算属性内部不能够执行异步任务，但是监听属性可以，当有这种需求时可以选择监听属性。
+      */
+    </script>
+  </body>
+</html>

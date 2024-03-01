@@ -1,0 +1,119 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-26 14:44:25
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-26 14:58:55
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      //创建School组件 仅在app vue实例中使用。
+      const School = Vue.extend({
+        name: "chinaSchool",
+        data() {
+          return {
+            schoolName: "中国科学院大学",
+            schoolAddress: "北京",
+          };
+        },
+        template: `
+          <div>
+            <h2>学校名字:{{this.schoolName}}</h2>
+            <h2>学校地址:{{this.schoolAddress}}</h2>
+          </div>
+        `,
+      });
+      //创建Student组件 并注册为全局组件
+      const Student = Vue.extend({
+        data() {
+          return {
+            name: "lucky",
+            age: 20,
+          };
+        },
+        template: `
+          <div>
+            <h2>学生名字:{{this.name}}</h2>
+            <h2>学生年龄:{{this.age}}</h2>
+          </div>
+        `,
+      });
+      Vue.component("Mystudent", Student);
+
+      const Hello = {
+        components: {
+          Student,
+        },
+        template: `
+            <div>
+                <h2>Hello</h2>
+                <Student></Student>
+            </div>
+
+          `,
+      };
+      const App = {
+        components: {
+          School,
+          Hello,
+        },
+        template: `
+            <div>
+                <!-- school组件的使用 -->
+                <h1>school组件的使用</h1>
+                <div>
+                    <School></School>
+                </div>
+                <h1>简写组件Hello的使用</h1>
+                <div>
+                    <Hello></Hello>
+                </div>
+                <hr></hr>
+                <!-- student组件的使用 -->
+                <h1>student组件的使用</h1>
+                <div>
+                    <Mystudent></Mystudent>
+                </div>
+            </div>
+        `,
+      };
+      const app = new Vue({
+        components: {
+          App,
+        },
+        el: "#app",
+        template: `
+            <div>
+                {{message}}
+                <App></App>
+            </div>
+        `,
+        data() {
+          return {
+            message: "vue组件相关",
+          };
+        },
+      });
+      console.log(app, "app");
+
+      /*
+        Vue中的根组件
+
+        在实际的开发过程中，我们通常会定义一个根组件（App），其他所有的组件都是嵌套在这个根组件中来使用和管理.
+
+
+
+
+      */
+    </script>
+  </body>
+</html>

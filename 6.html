@@ -1,0 +1,97 @@
+<!--
+ * @Author: Chengya
+ * @Description: Description
+ * @Date: 2024-01-20 11:30:12
+ * @LastEditors: Chengya
+ * @LastEditTime: 2024-01-22 16:53:56
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>简单的列表渲染</div>
+      <div v-for="(item,index) in list">{{item.name}}--{{item.price}}</div>
+      <hr />
+      <div>列表渲染问题演示</div>
+      <div>
+        <button type="" @click="addEvent">逆序添加一项（会出现问题）</button>
+        <div v-for="(item,index) in list" :key="index">
+          <span>{{item.name}}--{{item.price}}</span>
+          <input type="text" name="" />
+        </div>
+      </div>
+      <div>
+        <button type="" @click="addEvent_">正序添加一项（不会出现问题）</button>
+        <div v-for="(item,index) in list" :key="index">
+          <span>{{item.name}}--{{item.price}}</span>
+          <input type="text" name="" />
+        </div>
+      </div>
+      <hr />
+      <div>正确示范</div>
+      <div>
+        <button type="" @click="addEvent">
+          逆序添加一项（为关键字key绑定唯一值）
+        </button>
+        <div v-for="(item,index) in list" :key="item.id">
+          <span>{{item.name}}--{{item.price}}</span>
+          <input type="text" name="" />
+        </div>
+      </div>
+    </div>
+    <script src="./vue/vue.js"></script>
+    <script>
+      const app = new Vue({
+        data() {
+          return {
+            list: [
+              { id: "001", name: "苹果", price: 700 },
+              { id: "002", name: "香蕉", price: 600 },
+              { id: "003", name: "橙子", price: 800 },
+            ],
+          };
+        },
+        methods: {
+          addEvent() {
+            this.list.unshift({ id: "004", name: "橘子", price: 300 });
+          },
+          addEvent_() {
+            this.list.push({ id: "004", name: "橘子", price: 300 });
+          },
+        },
+      });
+      app.$mount("#app");
+      console.log(app, "app");
+
+      /*
+        vue 中列表渲染 以及 列表渲染时绑定关键字 key的作用
+
+        1.列表渲染 使用 v-for 指令
+
+        2.简单的列表渲染 不为列表项绑定关键字 key，仅作展示用，不会出现问题（实际上，如果我们没有
+        人为的指定key,vue内部默认以列表的索引值作为绑定的key值）。
+
+        3.在不添加key关键字或者以index作为key关键字的值时在有些情况下会出现问题
+          a. 当对列表项进行添加，删除等操作时，可能会造成列表的重复渲染，降低页面性能（之所以说可能，
+          是因为从列表最后一项进行相关操作不会造成问题，而在列表最前最前项进行操作则有问题）。
+          b. 如果列表结构中还包含有输入类型的dom（比如表单元素）,那么逆序操作列表除了会产生以上问题，还会造成页面渲染出错。
+
+        4.绑定关键字key的作用？
+          之所以在进行列表渲染的时候可能会出现问题在于，当我们对列表项进行操作的时候，会引起数据的更新，而数据的更新
+          会形成新的虚拟Dom,新的虚拟Dom和旧的虚拟Dom通过对比算法（diff算法）依据绑定的关键字key,找到哪些dom节点需要进行更新，哪些不需
+          要更新，哪些dom节点原来虚拟dom里不存在，需要新增，对需要更新的dom节点进行更新，不需要更新的进行复用，
+          需要新增的进行新增的操作，这些都需要依赖列表渲染时列表项绑定的关键字key，而一旦没有绑定关键字key，或者
+          绑定的关键字key的值不是唯一的，就会造成在利用diff算法进行新旧虚拟Dom对比时出现混乱，最终导致性能的下降和
+          浪费以及界面渲染出错的可能。
+
+        5.关键字key绑定的值的选择？
+          选用唯一的值作为绑定关键字key的属性值。
+      */
+    </script>
+  </body>
+</html>
